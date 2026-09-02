@@ -1,0 +1,489 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0627B9893A51504294DC6ADB /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF57B2806164187290D2FF14 /* SettingsView.swift */; };
+		06A9E358B1449EE64E9A0B46 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BDC282FE339A390A62A741A /* AppDelegate.swift */; };
+		1A9F3C84D2E54B7A91C06E38 /* PulseStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E41B27A93F4D6C8B2E1A70 /* PulseStage.swift */; };
+		219A49B7BAE1CB33C1704E5E /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4290CFC72E4216F611E37B /* Store.swift */; };
+		5A54BC654BD0331B6920EF21 /* GalleryStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4321EA40CDFA2214A73691 /* GalleryStage.swift */; };
+		5B359043021AFC7C8D59BAE0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 953EBA90C1F745F868C53B19 /* ContentView.swift */; };
+		7A1A98396545CEF210817103 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B5E256592CA762C8D5BC1A0D /* Main.storyboard */; };
+		7CC92C4FCB480500B1C9EA35 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7D1CD41D876210B76E9CFE /* SceneDelegate.swift */; };
+		7FACB908B03303A56ABCD7D9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E54C11323ECF23378BC39D6B /* Assets.xcassets */; };
+		D5CCC2ACD1B47923BC01CEAF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE9C5092E9F2A686FE6E7A6B /* LaunchScreen.storyboard */; };
+		D8E54442CD4772A164F35C39 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F056D793026D444607A9E6 /* Models.swift */; };
+		E02FDC61F09C2FEF7A251F6B /* CaptionStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2118E1F93B5FCD22EFB3F6E2 /* CaptionStage.swift */; };
+		EEEDFBF2658F18EBF2BBF22E /* AppLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5369B3BB45C69566B6D6C1CE /* AppLinks.swift */; };
+		F27353D9774AAD588658266E /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A37379E0CFAC0E2906E0722C /* Theme.swift */; };
+		F3C78E87CE333C9C5177D769 /* ArchiveStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D462C2E1807AE3B3944F7FE0 /* ArchiveStage.swift */; };
+		FB3CB48BEE691A62988BFA9D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = DF6380B5B0D59270886C650F /* PrivacyInfo.xcprivacy */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		10C7AD6FD36E6D4549D32F2C /* Pods-VelvetyHarmonyFlow.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VelvetyHarmonyFlow.release.xcconfig"; path = "Target Support Files/Pods-VelvetyHarmonyFlow/Pods-VelvetyHarmonyFlow.release.xcconfig"; sourceTree = "<group>"; };
+		1E18C18DBF916B2FE8720DCE /* Pods-VelvetyHarmonyFlow.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VelvetyHarmonyFlow.debug.xcconfig"; path = "Target Support Files/Pods-VelvetyHarmonyFlow/Pods-VelvetyHarmonyFlow.debug.xcconfig"; sourceTree = "<group>"; };
+		2118E1F93B5FCD22EFB3F6E2 /* CaptionStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptionStage.swift; sourceTree = "<group>"; };
+		5369B3BB45C69566B6D6C1CE /* AppLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLinks.swift; sourceTree = "<group>"; };
+		5511BA5300556B11F5B1A05B /* VelvetyHarmonyFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VelvetyHarmonyFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5E7D1CD41D876210B76E9CFE /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		7BDC282FE339A390A62A741A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		953EBA90C1F745F868C53B19 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		9F4321EA40CDFA2214A73691 /* GalleryStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryStage.swift; sourceTree = "<group>"; };
+		A37379E0CFAC0E2906E0722C /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		B5E256592CA762C8D5BC1A0D /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		C8E41B27A93F4D6C8B2E1A70 /* PulseStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseStage.swift; sourceTree = "<group>"; };
+		CB4290CFC72E4216F611E37B /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
+		D2F056D793026D444607A9E6 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		D462C2E1807AE3B3944F7FE0 /* ArchiveStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveStage.swift; sourceTree = "<group>"; };
+		D9DB5D9D5753C9C9CB6DFA25 /* Pods_VelvetyHarmonyFlow.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VelvetyHarmonyFlow.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC92F53B9EE5AC008FD5180B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DE9C5092E9F2A686FE6E7A6B /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		DF6380B5B0D59270886C650F /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		E54C11323ECF23378BC39D6B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		EF57B2806164187290D2FF14 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		44F8AC13ED9951B9B9A14B71 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		231DF99161F6282457B631F2 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				D2F056D793026D444607A9E6 /* Models.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		4C848F0507294A8CF0A9876A /* App */ = {
+			isa = PBXGroup;
+			children = (
+				7BDC282FE339A390A62A741A /* AppDelegate.swift */,
+				DC92F53B9EE5AC008FD5180B /* Info.plist */,
+				DE9C5092E9F2A686FE6E7A6B /* LaunchScreen.storyboard */,
+				B5E256592CA762C8D5BC1A0D /* Main.storyboard */,
+				5E7D1CD41D876210B76E9CFE /* SceneDelegate.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		641DB78C0718B26019B908BB = {
+			isa = PBXGroup;
+			children = (
+				864548FB148341814F49DA7B /* VelvetyHarmonyFlow */,
+				9D226D8648A257DA2A6063C5 /* Products */,
+				CD4698411172F33562264320 /* Pods */,
+				C3B887BD18C048F5D8FACC2D /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		7169F7710634B7F7ADD96546 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				5369B3BB45C69566B6D6C1CE /* AppLinks.swift */,
+			);
+			path = Navigation;
+			sourceTree = "<group>";
+		};
+		864548FB148341814F49DA7B /* VelvetyHarmonyFlow */ = {
+			isa = PBXGroup;
+			children = (
+				4C848F0507294A8CF0A9876A /* App */,
+				231DF99161F6282457B631F2 /* Models */,
+				7169F7710634B7F7ADD96546 /* Navigation */,
+				EAC1975C46B2F9EA0F86B30E /* Persistence */,
+				D10959EB95507DE8F611C8A2 /* Resources */,
+				F18DCE28E316CEB6B3A1BDDF /* Theme */,
+				CBEA0C932FE82050F2FBAD1D /* Views */,
+			);
+			path = VelvetyHarmonyFlow;
+			sourceTree = "<group>";
+		};
+		9D226D8648A257DA2A6063C5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5511BA5300556B11F5B1A05B /* VelvetyHarmonyFlow.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C3B887BD18C048F5D8FACC2D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D9DB5D9D5753C9C9CB6DFA25 /* Pods_VelvetyHarmonyFlow.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		CBEA0C932FE82050F2FBAD1D /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D462C2E1807AE3B3944F7FE0 /* ArchiveStage.swift */,
+				2118E1F93B5FCD22EFB3F6E2 /* CaptionStage.swift */,
+				953EBA90C1F745F868C53B19 /* ContentView.swift */,
+				9F4321EA40CDFA2214A73691 /* GalleryStage.swift */,
+				C8E41B27A93F4D6C8B2E1A70 /* PulseStage.swift */,
+				EF57B2806164187290D2FF14 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		CD4698411172F33562264320 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				1E18C18DBF916B2FE8720DCE /* Pods-VelvetyHarmonyFlow.debug.xcconfig */,
+				10C7AD6FD36E6D4549D32F2C /* Pods-VelvetyHarmonyFlow.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		D10959EB95507DE8F611C8A2 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E54C11323ECF23378BC39D6B /* Assets.xcassets */,
+				DF6380B5B0D59270886C650F /* PrivacyInfo.xcprivacy */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		EAC1975C46B2F9EA0F86B30E /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				CB4290CFC72E4216F611E37B /* Store.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		F18DCE28E316CEB6B3A1BDDF /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				A37379E0CFAC0E2906E0722C /* Theme.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		86FA8DB46339DB1224F8F7E3 /* VelvetyHarmonyFlow */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DCCD69EAA22A5301ED15859A /* Build configuration list for PBXNativeTarget "VelvetyHarmonyFlow" */;
+			buildPhases = (
+				9ED8D46C59B5242AD13A8750 /* [CP] Check Pods Manifest.lock */,
+				F13E8F62DFF3403AE4BAD0CB /* Sources */,
+				44F8AC13ED9951B9B9A14B71 /* Frameworks */,
+				CD7DCD14E6C0C693E4A91C79 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VelvetyHarmonyFlow;
+			productName = VelvetyHarmonyFlow;
+			productReference = 5511BA5300556B11F5B1A05B /* VelvetyHarmonyFlow.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AEEEA30573BA0324D18AA011 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					86FA8DB46339DB1224F8F7E3 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = F92DA304EDC1A517A8D9C0B0 /* Build configuration list for PBXProject "VelvetyHarmonyFlow" */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 641DB78C0718B26019B908BB;
+			productRefGroup = 9D226D8648A257DA2A6063C5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				86FA8DB46339DB1224F8F7E3 /* VelvetyHarmonyFlow */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CD7DCD14E6C0C693E4A91C79 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D5CCC2ACD1B47923BC01CEAF /* LaunchScreen.storyboard in Resources */,
+				7A1A98396545CEF210817103 /* Main.storyboard in Resources */,
+				7FACB908B03303A56ABCD7D9 /* Assets.xcassets in Resources */,
+				FB3CB48BEE691A62988BFA9D /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		9ED8D46C59B5242AD13A8750 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-VelvetyHarmonyFlow-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F13E8F62DFF3403AE4BAD0CB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				06A9E358B1449EE64E9A0B46 /* AppDelegate.swift in Sources */,
+				7CC92C4FCB480500B1C9EA35 /* SceneDelegate.swift in Sources */,
+				D8E54442CD4772A164F35C39 /* Models.swift in Sources */,
+				EEEDFBF2658F18EBF2BBF22E /* AppLinks.swift in Sources */,
+				219A49B7BAE1CB33C1704E5E /* Store.swift in Sources */,
+				F27353D9774AAD588658266E /* Theme.swift in Sources */,
+				F3C78E87CE333C9C5177D769 /* ArchiveStage.swift in Sources */,
+				E02FDC61F09C2FEF7A251F6B /* CaptionStage.swift in Sources */,
+				5B359043021AFC7C8D59BAE0 /* ContentView.swift in Sources */,
+				5A54BC654BD0331B6920EF21 /* GalleryStage.swift in Sources */,
+				1A9F3C84D2E54B7A91C06E38 /* PulseStage.swift in Sources */,
+				0627B9893A51504294DC6ADB /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1FDC603E71331186C68618F8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		61C55F5975FF6897C7434247 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 10C7AD6FD36E6D4549D32F2C /* Pods-VelvetyHarmonyFlow.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VelvetyHarmonyFlow/App/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Velvety Harmony Flow";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pro.v3lv3tyh3rm0nyfl0w;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		73BD2979AECA761C427E5F9E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		BB319B66988914F046E3E036 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1E18C18DBF916B2FE8720DCE /* Pods-VelvetyHarmonyFlow.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VelvetyHarmonyFlow/App/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Velvety Harmony Flow";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pro.v3lv3tyh3rm0nyfl0w;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DCCD69EAA22A5301ED15859A /* Build configuration list for PBXNativeTarget "VelvetyHarmonyFlow" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB319B66988914F046E3E036 /* Debug */,
+				61C55F5975FF6897C7434247 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F92DA304EDC1A517A8D9C0B0 /* Build configuration list for PBXProject "VelvetyHarmonyFlow" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				73BD2979AECA761C427E5F9E /* Debug */,
+				1FDC603E71331186C68618F8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AEEEA30573BA0324D18AA011 /* Project object */;
+}

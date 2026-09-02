@@ -1,0 +1,6 @@
+framework module Pods_VelvetyHarmonyFlow {
+  umbrella header "Pods-VelvetyHarmonyFlow-umbrella.h"
+
+  export *
+  module * { export * }
+}
