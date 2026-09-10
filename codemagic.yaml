@@ -7,7 +7,7 @@ workflows:
         vars:
           XCODE_WORKSPACE: "VelvetyHarmonyFlow.xcworkspace"
           XCODE_SCHEME: "VelvetyHarmonyFlow"
-          BUNDLE_ID: "com.pro.v3lv3tyh3rm0nyfl0w"
+          BUNDLE_ID: "com.msw.s1lk3nstr5m"
           APP_STORE_APP_ID: 6756367614
         xcode: latest
         cocoapods: 1.14.2

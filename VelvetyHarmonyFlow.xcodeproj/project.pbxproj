@@ -355,7 +355,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VelvetyHarmonyFlow/App/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Velvety Harmony Flow";
+				INFOPLIST_KEY_CFBundleDisplayName = "Fuzzance Plush Flow";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
@@ -365,7 +365,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.pro.v3lv3tyh3rm0nyfl0w;
+				PRODUCT_BUNDLE_IDENTIFIER = com.msw.s1lk3nstr5m;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -440,7 +440,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VelvetyHarmonyFlow/App/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Velvety Harmony Flow";
+				INFOPLIST_KEY_CFBundleDisplayName = "Fuzzance Plush Flow";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
@@ -450,7 +450,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.pro.v3lv3tyh3rm0nyfl0w;
+				PRODUCT_BUNDLE_IDENTIFIER = com.msw.s1lk3nstr5m;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
