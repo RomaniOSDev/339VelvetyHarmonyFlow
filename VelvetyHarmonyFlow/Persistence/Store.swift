@@ -5,72 +5,56 @@ import UniformTypeIdentifiers
 import UserNotifications
 
 final class Store: ObservableObject {
-    @Published var entries: [EmotionEntry] = []
-    @Published var captions: [EmotiveCaption] = []
-    @Published var favouritedEmotions: [String] = []
-    @Published var preferredMoodSet: [String] = []
+    @Published var notes: [DayNote] = []
     @Published var tutorialCompleted: Bool = false
-    @Published var favouritedEntryIds: [String] = []
-    @Published var darkroomEnabled: Bool = false
-    @Published var wallSort: WallSort = .newest
+    @Published var ledgerSort: LedgerSort = .newest
     @Published var eveningPromptEnabled: Bool = false
+    @Published var didInstallDemo: Bool = false
     @Published var undoTitle: String?
 
     private let defaults: UserDefaults
-    private let snapshotKey = "vhf.snapshot.v1"
-    private let spotlightDomain = "vhf.polaroids"
+    private let snapshotKey = "quietledger.snapshot.v1"
+    private let spotlightDomain = "quietledger.notes"
     private var pendingUndo: PendingUndo?
     private var undoExpiry: DispatchWorkItem?
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         load()
+        if !didInstallDemo && notes.isEmpty && !tutorialCompleted {
+            installDemoContent()
+        }
         refreshEveningPrompts()
         indexSpotlight()
     }
 
-    func addEntry(_ entry: EmotionEntry) {
-        entries.insert(entry, at: 0)
+    func addNote(_ note: DayNote) {
+        notes.insert(note, at: 0)
         save()
     }
 
-    func updateEntry(_ entry: EmotionEntry) {
-        guard let index = entries.firstIndex(where: { $0.id == entry.id }) else { return }
-        entries[index] = entry
+    func updateNote(_ note: DayNote) {
+        guard let index = notes.firstIndex(where: { $0.id == note.id }) else { return }
+        notes[index] = note
         save()
     }
 
-    func deleteEntry(id: UUID) {
-        guard let index = entries.firstIndex(where: { $0.id == id }) else { return }
-        let entry = entries[index]
-        let related = captions.filter { $0.photoId == id }
-        stashUndo(
-            .entry(entry, captions: related, index: index),
-            title: "Polaroid put away"
-        )
-        entries.remove(at: index)
-        captions.removeAll { $0.photoId == id }
-        favouritedEntryIds.removeAll { $0 == id.uuidString }
+    func deleteNote(id: UUID) {
+        guard let index = notes.firstIndex(where: { $0.id == id }) else { return }
+        let note = notes[index]
+        stashUndo(note, index: index, title: "Note removed")
+        notes.remove(at: index)
         save()
     }
 
-    func addCaption(_ caption: EmotiveCaption) {
-        captions.insert(caption, at: 0)
+    func togglePin(_ id: UUID) {
+        guard let index = notes.firstIndex(where: { $0.id == id }) else { return }
+        notes[index].pinned.toggle()
         save()
     }
 
-    func updateCaption(_ caption: EmotiveCaption) {
-        guard let index = captions.firstIndex(where: { $0.id == caption.id }) else { return }
-        captions[index] = caption
-        save()
-    }
-
-    func deleteCaption(id: UUID) {
-        guard let index = captions.firstIndex(where: { $0.id == id }) else { return }
-        let caption = captions[index]
-        stashUndo(.caption(caption, index: index), title: "Caption put away")
-        captions.remove(at: index)
-        save()
+    func isPinned(_ id: UUID) -> Bool {
+        notes.first(where: { $0.id == id })?.pinned ?? false
     }
 
     func undoLast() {
@@ -78,87 +62,37 @@ final class Store: ObservableObject {
         undoExpiry?.cancel()
         self.pendingUndo = nil
         undoTitle = nil
-        switch pendingUndo {
-        case .entry(let entry, let related, let index):
-            let clamped = min(max(index, 0), entries.count)
-            entries.insert(entry, at: clamped)
-            captions.append(contentsOf: related)
-            captions.sort { $0.creationDate > $1.creationDate }
-        case .caption(let caption, let index):
-            let clamped = min(max(index, 0), captions.count)
-            captions.insert(caption, at: clamped)
-        }
+        let clamped = min(max(pendingUndo.index, 0), notes.count)
+        notes.insert(pendingUndo.note, at: clamped)
         save()
     }
 
-    func captions(for photoId: UUID) -> [EmotiveCaption] {
-        captions
-            .filter { $0.photoId == photoId }
-            .sorted { $0.creationDate > $1.creationDate }
+    func note(for id: UUID) -> DayNote? {
+        notes.first { $0.id == id }
     }
 
-    func latestCaption(for photoId: UUID) -> EmotiveCaption? {
-        captions(for: photoId).first
+    func notes(on day: Date) -> [DayNote] {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: day)
+        return notes
+            .filter { calendar.isDate($0.createdAt, inSameDayAs: start) }
+            .sorted { $0.createdAt > $1.createdAt }
     }
 
-    func entry(for photoId: UUID) -> EmotionEntry? {
-        entries.first { $0.id == photoId }
+    func notes(of kind: NoteKind) -> [DayNote] {
+        notes.filter { $0.kindValue == kind }
     }
 
-    func entries(for mood: Mood) -> [EmotionEntry] {
-        entries.filter { $0.mood == mood.rawValue }
+    func todayIntention() -> DayNote? {
+        notes(on: Date()).first { $0.kindValue == .intention }
     }
 
-    func toggleFavourite(_ moodName: String) {
-        if let index = favouritedEmotions.firstIndex(of: moodName) {
-            favouritedEmotions.remove(at: index)
-        } else {
-            favouritedEmotions.append(moodName)
-            if !preferredMoodSet.contains(moodName) {
-                preferredMoodSet.append(moodName)
-            }
-        }
-        save()
+    func todayWins() -> [DayNote] {
+        notes(on: Date()).filter { $0.kindValue == .win }
     }
 
-    func isFavourited(_ moodName: String) -> Bool {
-        favouritedEmotions.contains(moodName)
-    }
-
-    func toggleLoved(_ entryId: UUID) {
-        let key = entryId.uuidString
-        if let index = favouritedEntryIds.firstIndex(of: key) {
-            favouritedEntryIds.remove(at: index)
-        } else {
-            favouritedEntryIds.append(key)
-        }
-        save()
-    }
-
-    func isLoved(_ entryId: UUID) -> Bool {
-        favouritedEntryIds.contains(entryId.uuidString)
-    }
-
-    func togglePreferred(_ moodName: String) {
-        if let index = preferredMoodSet.firstIndex(of: moodName) {
-            preferredMoodSet.remove(at: index)
-        } else {
-            preferredMoodSet.append(moodName)
-        }
-        save()
-    }
-
-    func isPreferred(_ moodName: String) -> Bool {
-        preferredMoodSet.contains(moodName)
-    }
-
-    func setWallSort(_ sort: WallSort) {
-        wallSort = sort
-        save()
-    }
-
-    func toggleDarkroom() {
-        darkroomEnabled.toggle()
+    func setLedgerSort(_ sort: LedgerSort) {
+        ledgerSort = sort
         save()
     }
 
@@ -181,43 +115,27 @@ final class Store: ObservableObject {
         save()
     }
 
-    func suggestedMoods(limit: Int = 3) -> [Mood] {
-        var counts: [String: Int] = [:]
-        for entry in entries {
-            counts[entry.mood, default: 0] += 1
-        }
-        let preferred = preferredMoodSet
-        let ranked = Mood.allCases.sorted { lhs, rhs in
-            let leftPreferred = preferred.contains(lhs.rawValue)
-            let rightPreferred = preferred.contains(rhs.rawValue)
-            if leftPreferred != rightPreferred {
-                return leftPreferred && !rightPreferred
-            }
-            let leftCount = counts[lhs.rawValue] ?? 0
-            let rightCount = counts[rhs.rawValue] ?? 0
-            if leftCount != rightCount {
-                return leftCount > rightCount
-            }
-            return lhs.rawValue < rhs.rawValue
-        }
-        let usable = ranked.filter { mood in
-            (counts[mood.rawValue] ?? 0) > 0
-        }
-        return Array(usable.prefix(limit))
+    func installDemoContent() {
+        notes = DemoCatalog.notes()
+        didInstallDemo = true
+        save()
     }
 
-    func moodsWithEntries() -> [Mood] {
-        let names = Set(entries.map(\.mood))
-        return Mood.allCases.filter { names.contains($0.rawValue) }
+    func clearDemoAndStartFresh() {
+        notes = []
+        didInstallDemo = true
+        tutorialCompleted = true
+        save()
+        indexSpotlight()
     }
 
-    func polaroidCount(for mood: Mood) -> Int {
-        entries.filter { $0.mood == mood.rawValue }.count
+    func count(for kind: NoteKind) -> Int {
+        notes.filter { $0.kindValue == kind }.count
     }
 
     func captureStreak() -> Int {
         let calendar = Calendar.current
-        let days = Set(entries.map { calendar.startOfDay(for: $0.createdAt) })
+        let days = Set(notes.map { calendar.startOfDay(for: $0.createdAt) })
         guard !days.isEmpty else { return 0 }
         var cursor = calendar.startOfDay(for: Date())
         if !days.contains(cursor) {
@@ -233,7 +151,7 @@ final class Store: ObservableObject {
         return streak
     }
 
-    func polaroidsByDay(last days: Int) -> [(date: Date, count: Int)] {
+    func notesByDay(last days: Int) -> [(date: Date, count: Int)] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         var buckets: [Date: Int] = [:]
@@ -242,8 +160,8 @@ final class Store: ObservableObject {
                 buckets[day] = 0
             }
         }
-        for entry in entries {
-            let day = calendar.startOfDay(for: entry.createdAt)
+        for note in notes {
+            let day = calendar.startOfDay(for: note.createdAt)
             if buckets[day] != nil {
                 buckets[day, default: 0] += 1
             }
@@ -251,13 +169,8 @@ final class Store: ObservableObject {
         return buckets.keys.sorted().map { (date: $0, count: buckets[$0] ?? 0) }
     }
 
-    func wander(awayFrom current: UUID? = nil) -> EmotionEntry? {
-        let open = entries.filter { !$0.isSealed }
-        let pool = open.filter { $0.id != current }
-        if pool.isEmpty {
-            return open.randomElement()
-        }
-        return pool.randomElement()
+    func pinnedNotes() -> [DayNote] {
+        notes.filter(\.pinned).sorted { $0.createdAt > $1.createdAt }
     }
 
     func refreshEveningPrompts() {
@@ -268,7 +181,7 @@ final class Store: ObservableObject {
         for offset in 0..<7 {
             guard let day = calendar.date(byAdding: .day, value: offset, to: Date()) else { continue }
             let content = UNMutableNotificationContent()
-            content.title = "A line for dusk"
+            content.title = "Evening review"
             content.body = DailyPrompt.phrase(for: day)
             content.sound = .default
             var components = calendar.dateComponents([.year, .month, .day], from: day)
@@ -285,15 +198,11 @@ final class Store: ObservableObject {
     }
 
     func resetAll() {
-        entries = []
-        captions = []
-        favouritedEmotions = []
-        preferredMoodSet = []
+        notes = []
         tutorialCompleted = false
-        favouritedEntryIds = []
-        darkroomEnabled = false
-        wallSort = .newest
+        ledgerSort = .newest
         eveningPromptEnabled = false
+        didInstallDemo = false
         pendingUndo = nil
         undoTitle = nil
         undoExpiry?.cancel()
@@ -303,13 +212,13 @@ final class Store: ObservableObject {
         NotificationCenter.default.post(name: Notification.Name("dataReset"), object: nil)
     }
 
-    private enum PendingUndo {
-        case entry(EmotionEntry, captions: [EmotiveCaption], index: Int)
-        case caption(EmotiveCaption, index: Int)
+    private struct PendingUndo {
+        let note: DayNote
+        let index: Int
     }
 
-    private func stashUndo(_ undo: PendingUndo, title: String) {
-        pendingUndo = undo
+    private func stashUndo(_ note: DayNote, index: Int, title: String) {
+        pendingUndo = PendingUndo(note: note, index: index)
         undoTitle = title
         undoExpiry?.cancel()
         let work = DispatchWorkItem { [weak self] in
@@ -321,15 +230,11 @@ final class Store: ObservableObject {
     }
 
     private struct Snapshot: Codable {
-        var entries: [EmotionEntry]
-        var captions: [EmotiveCaption]
-        var favouritedEmotions: [String]
-        var preferredMoodSet: [String]
+        var notes: [DayNote]
         var tutorialCompleted: Bool
-        var favouritedEntryIds: [String]?
-        var darkroomEnabled: Bool?
-        var wallSort: String?
+        var ledgerSort: String?
         var eveningPromptEnabled: Bool?
+        var didInstallDemo: Bool?
     }
 
     private func load() {
@@ -337,28 +242,20 @@ final class Store: ObservableObject {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         guard let snapshot = try? decoder.decode(Snapshot.self, from: data) else { return }
-        entries = snapshot.entries
-        captions = snapshot.captions
-        favouritedEmotions = snapshot.favouritedEmotions
-        preferredMoodSet = snapshot.preferredMoodSet
+        notes = snapshot.notes
         tutorialCompleted = snapshot.tutorialCompleted
-        favouritedEntryIds = snapshot.favouritedEntryIds ?? []
-        darkroomEnabled = snapshot.darkroomEnabled ?? false
-        wallSort = WallSort(rawValue: snapshot.wallSort ?? "") ?? .newest
+        ledgerSort = LedgerSort(rawValue: snapshot.ledgerSort ?? "") ?? .newest
         eveningPromptEnabled = snapshot.eveningPromptEnabled ?? false
+        didInstallDemo = snapshot.didInstallDemo ?? false
     }
 
     private func save() {
         let snapshot = Snapshot(
-            entries: entries,
-            captions: captions,
-            favouritedEmotions: favouritedEmotions,
-            preferredMoodSet: preferredMoodSet,
+            notes: notes,
             tutorialCompleted: tutorialCompleted,
-            favouritedEntryIds: favouritedEntryIds,
-            darkroomEnabled: darkroomEnabled,
-            wallSort: wallSort.rawValue,
-            eveningPromptEnabled: eveningPromptEnabled
+            ledgerSort: ledgerSort.rawValue,
+            eveningPromptEnabled: eveningPromptEnabled,
+            didInstallDemo: didInstallDemo
         )
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
@@ -368,23 +265,19 @@ final class Store: ObservableObject {
     }
 
     private func indexSpotlight() {
-        let snapshot = entries
+        let snapshot = notes
         let domain = spotlightDomain
         let index = CSSearchableIndex.default()
         index.deleteSearchableItems(withDomainIdentifiers: [domain]) { _ in
-            let items: [CSSearchableItem] = snapshot.map { entry in
+            let items: [CSSearchableItem] = snapshot.map { note in
                 let attributes = CSSearchableItemAttributeSet(contentType: .plainText)
-                attributes.title = entry.title
-                if entry.isSealed, let sealedUntil = entry.sealedUntil {
-                    attributes.contentDescription = "Sealed until \(SealDate.medium.string(from: sealedUntil))"
-                } else {
-                    attributes.contentDescription = [entry.mood, entry.description]
-                        .filter { !$0.isEmpty }
-                        .joined(separator: " · ")
-                }
-                attributes.keywords = [entry.mood, entry.moodEmoji, "polaroid", "velvet"]
+                attributes.title = note.title
+                attributes.contentDescription = [note.kind, note.body]
+                    .filter { !$0.isEmpty }
+                    .joined(separator: " · ")
+                attributes.keywords = [note.kind, "ledger", "win", "review"]
                 return CSSearchableItem(
-                    uniqueIdentifier: entry.id.uuidString,
+                    uniqueIdentifier: note.id.uuidString,
                     domainIdentifier: domain,
                     attributeSet: attributes
                 )
@@ -393,5 +286,5 @@ final class Store: ObservableObject {
         }
     }
 
-    private static let promptIdentifiers = (0..<7).map { "vhf.prompt.\($0)" }
+    private static let promptIdentifiers = (0..<7).map { "quietledger.prompt.\($0)" }
 }

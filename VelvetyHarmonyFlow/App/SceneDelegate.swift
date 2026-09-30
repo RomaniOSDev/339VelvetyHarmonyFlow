@@ -8,7 +8,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else {return}
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = UIHostingController(rootView: ContentView())
+        let host = UIHostingController(rootView: ContentView())
+        host.view.backgroundColor = .clear
+        window?.backgroundColor = .clear
+        window?.rootViewController = host
         window?.makeKeyAndVisible()
         if let activity = connectionOptions.userActivities.first {
             Self.route(activity)
@@ -39,7 +42,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
               let identifier = activity.userInfo?[CSSearchableItemActivityIdentifier] as? String,
               let id = UUID(uuidString: identifier) else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-            NotificationCenter.default.post(name: Notification.Name("openPolaroid"), object: id)
+            NotificationCenter.default.post(name: Notification.Name("openNote"), object: id)
         }
     }
 }

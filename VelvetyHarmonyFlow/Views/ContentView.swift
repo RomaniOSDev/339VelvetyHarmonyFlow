@@ -1,17 +1,24 @@
 import SwiftUI
 
 enum HomeLane: String, CaseIterable, Identifiable {
-    case archive = "Archive"
-    case captions = "Captions"
-    case gallery = "Gallery"
-    case pulse = "Pulse"
+    case today = "Today"
+    case ledger = "Ledger"
+    case review = "Review"
 
     var id: String { rawValue }
+
+    var symbol: String {
+        switch self {
+        case .today: return "sun.max.fill"
+        case .ledger: return "list.bullet.rectangle.portrait.fill"
+        case .review: return "chart.line.uptrend.xyaxis"
+        }
+    }
 }
 
 struct ContentView: View {
     @StateObject private var store = Store()
-    @State private var selectedLane: HomeLane = .archive
+    @State private var selectedLane: HomeLane = .today
     @State private var showSettings = false
     @Environment(\.scenePhase) private var scenePhase
 
@@ -19,43 +26,47 @@ struct ContentView: View {
         VStack(spacing: 0) {
             Group {
                 switch selectedLane {
-                case .archive:
-                    ArchiveStage()
-                case .captions:
-                    CaptionStage()
-                case .gallery:
-                    GalleryStage()
-                case .pulse:
-                    PulseStage()
+                case .today:
+                    TodayStage()
+                case .ledger:
+                    LedgerStage()
+                case .review:
+                    ReviewStage()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.clear)
+
             if let undoTitle = store.undoTitle {
                 UndoBanner(title: undoTitle) {
                     store.undoLast()
                 }
             }
-            FilmStripBar(selectedLane: $selectedLane, onSettings: { showSettings = true })
+
+            LaneTabBar(selectedLane: $selectedLane, onSettings: { showSettings = true })
         }
-        .velvetCanvas()
+        .appCanvas()
         .environmentObject(store)
-        .darkroomVeil(store.darkroomEnabled)
         .sheet(isPresented: $showSettings) {
             SettingsView()
                 .environmentObject(store)
         }
         .overlay {
             if !store.tutorialCompleted {
-                TutorialDrape()
+                WelcomeOverlay()
                     .environmentObject(store)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("dataReset"))) { _ in
-            selectedLane = .archive
+            selectedLane = .today
             showSettings = false
         }
-        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("openPolaroid"))) { _ in
-            selectedLane = .archive
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("openNote"))) { _ in
+            selectedLane = .ledger
+            showSettings = false
+        }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("goToday"))) { _ in
+            selectedLane = .today
             showSettings = false
         }
         .onChange(of: scenePhase) { phase in
@@ -66,74 +77,99 @@ struct ContentView: View {
     }
 }
 
-struct TutorialDrape: View {
+struct WelcomeOverlay: View {
     @EnvironmentObject private var store: Store
 
     var body: some View {
         ZStack {
-            Palette.background.opacity(0.78)
+            Palette.background.opacity(0.88)
                 .ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 18) {
-                Text("Lay feelings into dusk")
-                    .font(.system(size: 26, weight: .semibold, design: .serif))
+                Text("Quiet Ledger")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundColor(Palette.primary)
 
-                Text("Tag a polaroid, write a caption, then wander the gallery. Favourite the moods that keep calling you back.")
-                    .font(.system(size: 15, weight: .regular, design: .serif))
+                Text("A daily ritual for intentions, wins, friction, and gratitude — not a mood gallery. Morning focus, evening review, patterns over time.")
+                    .font(.system(size: 15, weight: .regular, design: .rounded))
                     .foregroundColor(Palette.accent)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Text("Moods that feel like home")
-                    .font(.system(size: 13, weight: .semibold, design: .serif))
-                    .foregroundColor(Palette.primary)
+                VStack(alignment: .leading, spacing: 10) {
+                    welcomeRow(symbol: "sunrise.fill", text: "Today — set intention, log wins")
+                    welcomeRow(symbol: "list.bullet.rectangle.portrait.fill", text: "Ledger — browse every note by day and type")
+                    welcomeRow(symbol: "chart.line.uptrend.xyaxis", text: "Review — streak, mix, and pinned notes")
+                }
+                .padding(14)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Palette.surface)
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
 
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 108), spacing: 8)], spacing: 8) {
-                    ForEach(Mood.allCases) { mood in
-                        MoodChip(mood: mood, selected: store.isPreferred(mood.rawValue)) {
-                            store.togglePreferred(mood.rawValue)
-                        }
-                    }
+                if store.didInstallDemo && !store.notes.isEmpty {
+                    Text("A sample week is already loaded so you can explore Ledger and Review immediately.")
+                        .font(.system(size: 13, design: .rounded))
+                        .foregroundColor(Palette.primary.opacity(0.75))
                 }
 
-                HStack(spacing: 12) {
+                VStack(spacing: 10) {
                     Button {
                         store.completeTutorial()
                     } label: {
-                        Text("Skip")
-                            .font(.system(size: 15, weight: .medium, design: .serif))
-                            .foregroundColor(Palette.primary)
+                        Text(store.notes.isEmpty ? "Begin" : "Explore with sample notes")
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                            .foregroundColor(Palette.background)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .overlay(
-                                Capsule()
-                                    .stroke(Palette.primary, lineWidth: 1)
+                            .padding(.vertical, 14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .fill(Palette.primary)
                             )
                     }
                     .buttonStyle(.plain)
 
-                    Button {
-                        store.completeTutorial()
-                    } label: {
-                        Text("Begin")
-                            .font(.system(size: 15, weight: .bold, design: .serif))
-                            .foregroundColor(Palette.background)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(Capsule().fill(Palette.primary))
-                            .shadow(color: Palette.primary.opacity(0.4), radius: 8, y: 3)
+                    if !store.notes.isEmpty {
+                        Button {
+                            store.clearDemoAndStartFresh()
+                        } label: {
+                            Text("Clear samples and start empty")
+                                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                .foregroundColor(Palette.primary)
+                        }
+                        .buttonStyle(.plain)
+                    } else {
+                        Button {
+                            store.installDemoContent()
+                            store.completeTutorial()
+                        } label: {
+                            Text("Load sample week first")
+                                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                .foregroundColor(Palette.primary)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
             }
-            .padding(22)
-            .background(Palette.surface)
+            .padding(24)
+            .background(Palette.surface.opacity(0.97))
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 22)
-                    .stroke(Palette.primary.opacity(0.55), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .stroke(Palette.primary.opacity(0.25), lineWidth: 1)
             )
-            .shadow(color: Palette.background.opacity(0.6), radius: 10, y: 6)
             .padding(.horizontal, 22)
+        }
+    }
+
+    private func welcomeRow(symbol: String, text: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: symbol)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(Palette.primary)
+                .frame(width: 22)
+            Text(text)
+                .font(.system(size: 14, design: .rounded))
+                .foregroundColor(Palette.primary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }

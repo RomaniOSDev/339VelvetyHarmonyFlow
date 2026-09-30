@@ -8,266 +8,247 @@ enum Palette {
     static let accent = Color("AppAccent")
 }
 
-struct VelvetCanvasModifier: ViewModifier {
+struct AppBackgroundView: View {
+    var body: some View {
+        Color("AppBackground")
+            .overlay {
+                Image("BgMeadow")
+                    .resizable()
+                    .scaledToFill()
+                    .opacity(0.22)
+            }
+            .overlay {
+                LinearGradient(
+                    colors: [
+                        Color("AppBackground").opacity(0.35),
+                        Color("AppAccent").opacity(0.12),
+                        Color("AppPrimary").opacity(0.14)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+            .clipped()
+            .ignoresSafeArea()
+    }
+}
+
+struct AppCanvasModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background {
-                Color("AppBackground")
-                    .overlay {
-                        Image("BgMeadow")
-                            .resizable()
-                            .scaledToFill()
-                            .opacity(0.30)
-                    }
-                    .overlay {
-                        LinearGradient(
-                            colors: [
-                                Color("AppBackground").opacity(0.28),
-                                Color("AppAccent").opacity(0.14),
-                                Color("AppPrimary").opacity(0.16)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    }
-                    .clipped()
-                    .ignoresSafeArea()
+                AppBackgroundView()
             }
     }
 }
 
 extension View {
+    func appCanvas() -> some View {
+        modifier(AppCanvasModifier())
+    }
+
+    /// Backward-compatible alias used during migration.
     func velvetCanvas() -> some View {
-        modifier(VelvetCanvasModifier())
+        appCanvas()
     }
 
-    func darkroomVeil(_ enabled: Bool) -> some View {
-        overlay {
-            if enabled {
-                Color.black.opacity(0.42)
-                    .ignoresSafeArea()
-                    .allowsHitTesting(false)
+    func clearScrollBackground() -> some View {
+        scrollContentBackground(.hidden)
+            .background(Color.clear)
+    }
+
+    /// Clears NavigationStack / UIKit chrome so AppBackgroundView shows through.
+    func transparentNavigationChrome() -> some View {
+        self
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .background(Color.clear)
+    }
+
+    func dismissKeyboardOnTap() -> some View {
+        simultaneousGesture(
+            TapGesture().onEnded { _ in
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
             }
-        }
-    }
-}
-
-enum PolaroidMotion {
-    static func tilt(for id: UUID) -> Double {
-        let seed = id.uuidString.utf8.reduce(0) { partial, unit in
-            partial &+ Int(unit)
-        }
-        let bucket = seed % 5
-        switch bucket {
-        case 0:
-            return -2
-        case 1:
-            return -1.2
-        case 2:
-            return 0.6
-        case 3:
-            return 1.4
-        default:
-            return 2
-        }
-    }
-}
-
-struct FilmStripBar: View {
-    @Binding var selectedLane: HomeLane
-    let onSettings: () -> Void
-
-    var body: some View {
-        HStack(spacing: 0) {
-            sprocketColumn
-            ForEach(HomeLane.allCases) { lane in
-                filmFrame(title: lane.rawValue, isSelected: selectedLane == lane) {
-                    selectedLane = lane
-                }
-            }
-            filmFrame(title: "Desk", isSelected: false, action: onSettings)
-                .accessibilityLabel("Settings")
-            sprocketColumn
-        }
-        .padding(.vertical, 8)
-        .background(Palette.background.opacity(0.94))
-        .overlay(alignment: .top) {
-            Rectangle()
-                .fill(Palette.primary.opacity(0.7))
-                .frame(height: 2)
-        }
-        .overlay(alignment: .bottom) {
-            Rectangle()
-                .fill(Palette.primary.opacity(0.7))
-                .frame(height: 2)
-        }
-    }
-
-    private var sprocketColumn: some View {
-        VStack(spacing: 5) {
-            ForEach(0..<6, id: \.self) { _ in
-                RoundedRectangle(cornerRadius: 1, style: .continuous)
-                    .fill(Palette.primary.opacity(0.38))
-                    .frame(width: 9, height: 7)
-            }
-        }
-        .padding(.horizontal, 4)
-    }
-
-    private func filmFrame(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(.system(size: 10, weight: .bold, design: .serif))
-                .foregroundColor(isSelected ? Palette.background : Palette.primary)
-                .multilineTextAlignment(.center)
-                .lineLimit(1)
-                .minimumScaleFactor(0.75)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(isSelected ? Palette.primary : Palette.surface.opacity(0.55))
-                .overlay(
-                    Rectangle()
-                        .stroke(Palette.primary.opacity(isSelected ? 0.95 : 0.45), lineWidth: 1)
-                )
-                .padding(.horizontal, 3)
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(title)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .frame(minHeight: 44)
-    }
-}
-
-struct PolaroidCard: View {
-    let entry: EmotionEntry
-    var handwritten: String = ""
-    var loved: Bool = false
-
-    var body: some View {
-        Group {
-            if entry.isSealed {
-                sealedBody
-            } else {
-                openBody
-            }
-        }
-        .background(entry.isSealed ? Palette.surface : Palette.primary)
-        .shadow(color: Palette.background.opacity(0.55), radius: 8, x: 0, y: 5)
-        .rotationEffect(.degrees(PolaroidMotion.tilt(for: entry.id)))
-        .overlay(alignment: .topTrailing) {
-            if loved {
-                Image(systemName: "heart.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(entry.isSealed ? Palette.primary : Palette.background)
-                    .padding(.top, 16)
-                    .padding(.trailing, 14)
-            }
-        }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 4)
-    }
-
-    private var openBody: some View {
-        VStack(spacing: 0) {
-            Image(entry.imageName)
-                .resizable()
-                .scaledToFill()
-                .frame(minHeight: 118, maxHeight: 148)
-                .clipped()
-                .padding(.horizontal, 10)
-                .padding(.top, 10)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(entry.title)
-                    .font(.system(size: 15, weight: .semibold, design: .serif))
-                    .foregroundColor(Palette.background)
-                    .lineLimit(2)
-
-                if !handwritten.isEmpty {
-                    Text(handwritten)
-                        .font(.system(size: 12, weight: .regular, design: .serif))
-                        .italic()
-                        .foregroundColor(Palette.background.opacity(0.82))
-                        .lineLimit(3)
-                }
-
-                Text("\(entry.moodEmoji)  \(entry.mood)")
-                    .font(.system(size: 10, weight: .medium, design: .serif))
-                    .foregroundColor(Palette.surface)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 12)
-            .padding(.top, 8)
-            .padding(.bottom, 14)
-        }
-    }
-
-    private var sealedBody: some View {
-        VStack(spacing: 10) {
-            Image(systemName: "lock.fill")
-                .font(.system(size: 28, weight: .regular))
-                .foregroundColor(Palette.primary)
-                .padding(.top, 36)
-            Text("Sealed")
-                .font(.system(size: 15, weight: .semibold, design: .serif))
-                .foregroundColor(Palette.primary)
-            if let sealedUntil = entry.sealedUntil {
-                Text("Opens \(SealDate.medium.string(from: sealedUntil))")
-                    .font(.system(size: 11, design: .serif))
-                    .foregroundColor(Palette.accent)
-                    .multilineTextAlignment(.center)
-            }
-            Spacer(minLength: 16)
-        }
-        .frame(maxWidth: .infinity, minHeight: 176)
-        .overlay(
-            Rectangle()
-                .stroke(Palette.primary.opacity(0.45), lineWidth: 8)
-                .padding(6)
         )
     }
 }
 
-struct VelvetEmptyState: View {
+struct LaneTabBar: View {
+    @Binding var selectedLane: HomeLane
+    let onSettings: () -> Void
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(HomeLane.allCases) { lane in
+                Button {
+                    selectedLane = lane
+                } label: {
+                    VStack(spacing: 4) {
+                        Image(systemName: lane.symbol)
+                            .font(.system(size: 16, weight: .semibold))
+                        Text(lane.rawValue)
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    }
+                    .foregroundColor(selectedLane == lane ? Palette.background : Palette.primary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(selectedLane == lane ? Palette.primary : Palette.surface.opacity(0.7))
+                    )
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(lane.rawValue)
+                .accessibilityAddTraits(selectedLane == lane ? .isSelected : [])
+            }
+
+            Button(action: onSettings) {
+                VStack(spacing: 4) {
+                    Image(systemName: "gearshape.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                    Text("More")
+                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                }
+                .foregroundColor(Palette.primary)
+                .frame(width: 58)
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(Palette.surface.opacity(0.7))
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Settings")
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(Palette.background.opacity(0.94))
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(Palette.primary.opacity(0.25))
+                .frame(height: 1)
+        }
+    }
+}
+
+struct NoteCard: View {
+    let note: DayNote
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: note.kindValue.symbol)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(Palette.background)
+                    .padding(7)
+                    .background(Circle().fill(Palette.primary))
+
+                Text(note.kind.uppercased())
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundColor(Palette.accent)
+
+                Spacer()
+
+                if note.pinned {
+                    Image(systemName: "pin.fill")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(Palette.primary)
+                }
+
+                Text(NoteDate.shortTime.string(from: note.createdAt))
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundColor(Palette.primary.opacity(0.55))
+            }
+
+            Text(note.title)
+                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                .foregroundColor(Palette.primary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if !note.body.isEmpty {
+                Text(note.body)
+                    .font(.system(size: 14, weight: .regular, design: .rounded))
+                    .foregroundColor(Palette.primary.opacity(0.78))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(4)
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Palette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(Palette.primary.opacity(0.18), lineWidth: 1)
+        )
+        .shadow(color: Palette.background.opacity(0.35), radius: 8, y: 3)
+    }
+}
+
+struct UsefulEmptyState: View {
     let title: String
+    let subtitle: String
     let systemImage: String
-    var subtitle: String? = nil
-    var action: (() -> Void)? = nil
+    var primaryTitle: String? = nil
+    var primaryAction: (() -> Void)? = nil
+    var secondaryTitle: String? = nil
+    var secondaryAction: (() -> Void)? = nil
 
     var body: some View {
         VStack(spacing: 18) {
-            Spacer(minLength: 12)
-            Button(action: { action?() }) {
-                VStack(spacing: 16) {
-                    Image(systemName: systemImage)
-                        .font(.system(size: 50, weight: .regular))
-                        .foregroundColor(Palette.primary)
-                        .shadow(color: Palette.primary.opacity(0.45), radius: 8)
-                    Text(title)
-                        .font(.system(size: 20, weight: .medium, design: .serif))
-                        .foregroundColor(Palette.primary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 28)
-                    if let subtitle {
-                        Text(subtitle)
-                            .font(.system(size: 14, design: .serif))
-                            .italic()
-                            .foregroundColor(Palette.accent)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 28)
-                    }
+            Spacer(minLength: 20)
+
+            Image(systemName: systemImage)
+                .font(.system(size: 44, weight: .regular))
+                .foregroundColor(Palette.primary)
+                .padding(18)
+                .background(
+                    Circle()
+                        .fill(Palette.surface)
+                        .overlay(Circle().stroke(Palette.primary.opacity(0.2), lineWidth: 1))
+                )
+
+            Text(title)
+                .font(.system(size: 22, weight: .semibold, design: .rounded))
+                .foregroundColor(Palette.primary)
+                .multilineTextAlignment(.center)
+
+            Text(subtitle)
+                .font(.system(size: 15, weight: .regular, design: .rounded))
+                .foregroundColor(Palette.accent)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 28)
+
+            if let primaryTitle, let primaryAction {
+                Button(action: primaryAction) {
+                    Text(primaryTitle)
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .foregroundColor(Palette.background)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Palette.primary))
                 }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 36)
             }
-            .buttonStyle(.plain)
-            .disabled(action == nil)
-            Spacer(minLength: 12)
+
+            if let secondaryTitle, let secondaryAction {
+                Button(action: secondaryAction) {
+                    Text(secondaryTitle)
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .foregroundColor(Palette.primary)
+                }
+                .buttonStyle(.plain)
+            }
+
+            Spacer(minLength: 20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
-struct VelvetFilterChip: View {
+struct FilterChip: View {
     let title: String
     let selected: Bool
     let action: () -> Void
@@ -275,18 +256,43 @@ struct VelvetFilterChip: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 13, weight: .semibold, design: .serif))
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
                 .foregroundColor(selected ? Palette.background : Palette.primary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(
-                    Capsule()
-                        .fill(selected ? Palette.primary : Palette.surface)
+                    Capsule().fill(selected ? Palette.primary : Palette.surface)
                 )
                 .overlay(
-                    Capsule()
-                        .stroke(Palette.primary.opacity(selected ? 0 : 0.55), lineWidth: 1)
+                    Capsule().stroke(Palette.primary.opacity(selected ? 0 : 0.45), lineWidth: 1)
                 )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+struct KindChip: View {
+    let kind: NoteKind
+    let selected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: kind.symbol)
+                    .font(.system(size: 12, weight: .semibold))
+                Text(kind.rawValue)
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+            }
+            .foregroundColor(selected ? Palette.background : Palette.primary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(
+                Capsule().fill(selected ? Palette.primary : Palette.surface)
+            )
+            .overlay(
+                Capsule().stroke(Palette.primary.opacity(selected ? 0 : 0.45), lineWidth: 1)
+            )
         }
         .buttonStyle(.plain)
     }
@@ -299,12 +305,12 @@ struct UndoBanner: View {
     var body: some View {
         HStack(spacing: 12) {
             Text(title)
-                .font(.system(size: 14, design: .serif))
+                .font(.system(size: 14, design: .rounded))
                 .foregroundColor(Palette.primary)
             Spacer()
             Button(action: action) {
                 Text("Undo")
-                    .font(.system(size: 14, weight: .bold, design: .serif))
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
                     .foregroundColor(Palette.background)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
@@ -315,37 +321,13 @@ struct UndoBanner: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
         .background(Palette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Palette.primary.opacity(0.4), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(Palette.primary.opacity(0.35), lineWidth: 1)
         )
         .padding(.horizontal, 16)
         .padding(.bottom, 8)
-    }
-}
-
-struct MoodChip: View {
-    let mood: Mood
-    let selected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Text("\(mood.emoji)  \(mood.rawValue)")
-                .font(.system(size: 13, weight: .semibold, design: .serif))
-                .foregroundColor(selected ? Palette.background : Palette.primary)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(
-                    Capsule()
-                        .fill(selected ? Palette.primary : Palette.surface)
-                )
-                .overlay(
-                    Capsule()
-                        .stroke(Palette.primary.opacity(selected ? 0 : 0.55), lineWidth: 1)
-                )
-        }
-        .buttonStyle(.plain)
     }
 }
 
@@ -357,46 +339,47 @@ struct StageHeading: View {
     var body: some View {
         HStack(spacing: 10) {
             Text(title)
-                .font(.system(size: 22, weight: .semibold, design: .serif))
+                .font(.system(size: 24, weight: .bold, design: .rounded))
                 .foregroundColor(Palette.primary)
             Spacer()
             if let systemImage, let action {
                 Button(action: action) {
                     Image(systemName: systemImage)
-                        .font(.system(size: 26, weight: .regular))
+                        .font(.system(size: 22, weight: .semibold))
                         .foregroundColor(Palette.primary)
-                        .shadow(color: Palette.primary.opacity(0.35), radius: 6)
+                        .frame(width: 44, height: 44)
+                        .background(Circle().fill(Palette.surface))
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding(.bottom, 8)
+        .padding(.bottom, 4)
     }
 }
 
-struct VelvetFieldPanel<Content: View>: View {
+struct FieldPanel<Content: View>: View {
     let title: String
     @ViewBuilder var content: Content
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.system(size: 12, weight: .semibold, design: .serif))
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
                 .foregroundColor(Palette.accent)
             content
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Palette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Palette.primary.opacity(0.35), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Palette.primary.opacity(0.28), lineWidth: 1)
         )
-        .shadow(color: Palette.background.opacity(0.35), radius: 8, y: 3)
     }
 }
 
-struct VelvetPromptField: View {
+struct PromptField: View {
     let placeholder: String
     @Binding var text: String
 
@@ -404,19 +387,19 @@ struct VelvetPromptField: View {
         ZStack(alignment: .leading) {
             if text.isEmpty {
                 Text(placeholder)
-                    .font(.system(size: 16, design: .serif))
-                    .foregroundColor(Palette.primary.opacity(0.48))
+                    .font(.system(size: 16, design: .rounded))
+                    .foregroundColor(Palette.primary.opacity(0.45))
                     .allowsHitTesting(false)
             }
             TextField("", text: $text)
-                .font(.system(size: 16, design: .serif))
+                .font(.system(size: 16, design: .rounded))
                 .foregroundColor(Palette.primary)
                 .tint(Palette.accent)
         }
     }
 }
 
-struct VelvetPromptEditor: View {
+struct PromptEditor: View {
     let placeholder: String
     @Binding var text: String
     var minHeight: CGFloat = 90
@@ -424,15 +407,15 @@ struct VelvetPromptEditor: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             TextEditor(text: $text)
-                .font(.system(size: 15, design: .serif))
+                .font(.system(size: 15, design: .rounded))
                 .foregroundColor(Palette.primary)
                 .scrollContentBackground(.hidden)
                 .frame(minHeight: minHeight)
                 .tint(Palette.accent)
             if text.isEmpty {
                 Text(placeholder)
-                    .font(.system(size: 15, design: .serif))
-                    .foregroundColor(Palette.primary.opacity(0.48))
+                    .font(.system(size: 15, design: .rounded))
+                    .foregroundColor(Palette.primary.opacity(0.45))
                     .padding(.top, 8)
                     .padding(.leading, 5)
                     .allowsHitTesting(false)
@@ -441,12 +424,128 @@ struct VelvetPromptEditor: View {
     }
 }
 
-extension View {
-    func dismissKeyboardOnTap() -> some View {
-        simultaneousGesture(
-            TapGesture().onEnded { _ in
-                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+/// Shared note composer used by Today and Ledger.
+struct NoteComposerSheet: View {
+    enum Mode: Identifiable {
+        case create(NoteKind)
+        case edit(DayNote)
+
+        var id: String {
+            switch self {
+            case .create(let kind): return "create-\(kind.rawValue)"
+            case .edit(let note): return "edit-\(note.id.uuidString)"
             }
-        )
+        }
+    }
+
+    let mode: Mode
+    @EnvironmentObject private var store: Store
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var kind: NoteKind = .win
+    @State private var title = ""
+    @State private var bodyText = ""
+    @State private var pinned = false
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                AppBackgroundView()
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text(kind.hint)
+                            .font(.system(size: 14, design: .rounded))
+                            .foregroundColor(Palette.accent)
+
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(NoteKind.allCases) { item in
+                                    KindChip(kind: item, selected: kind == item) {
+                                        kind = item
+                                    }
+                                }
+                            }
+                        }
+
+                        FieldPanel(title: "Headline") {
+                            PromptField(placeholder: "Short title", text: $title)
+                        }
+
+                        FieldPanel(title: "Details") {
+                            PromptEditor(placeholder: "What happened, or what you want next…", text: $bodyText, minHeight: 120)
+                        }
+
+                        Toggle(isOn: $pinned) {
+                            Text("Pin to Review")
+                                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                .foregroundColor(Palette.primary)
+                        }
+                        .tint(Palette.primary)
+                        .padding(14)
+                        .background(Palette.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    }
+                    .padding(20)
+                    .padding(.bottom, 24)
+                }
+                .clearScrollBackground()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .navigationTitle(navigationTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") { save() }
+                        .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        .fontWeight(.bold)
+                }
+            }
+        }
+        .transparentNavigationChrome()
+        .dismissKeyboardOnTap()
+        .onAppear(perform: hydrate)
+    }
+
+    private var navigationTitle: String {
+        switch mode {
+        case .create: return "New note"
+        case .edit: return "Edit note"
+        }
+    }
+
+    private func hydrate() {
+        switch mode {
+        case .create(let initial):
+            kind = initial
+        case .edit(let note):
+            kind = note.kindValue
+            title = note.title
+            bodyText = note.body
+            pinned = note.pinned
+        }
+    }
+
+    private func save() {
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedBody = bodyText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedTitle.isEmpty else { return }
+
+        switch mode {
+        case .create:
+            store.addNote(
+                DayNote(kind: kind, title: trimmedTitle, body: trimmedBody, pinned: pinned)
+            )
+        case .edit(var note):
+            note.kind = kind.rawValue
+            note.title = trimmedTitle
+            note.body = trimmedBody
+            note.pinned = pinned
+            store.updateNote(note)
+        }
+        dismiss()
     }
 }

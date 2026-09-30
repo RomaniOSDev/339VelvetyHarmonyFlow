@@ -1,212 +1,216 @@
 import SwiftUI
 import Charts
 
-struct PulseStage: View {
+struct ReviewStage: View {
     @EnvironmentObject private var store: Store
+    @State private var composer: NoteComposerSheet.Mode?
+
+    private let tabBarClearance: CGFloat = 100
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            StageHeading(title: "Mood Pulse")
-                .padding(.horizontal, 16)
+        NavigationStack {
+            ZStack {
+                AppBackgroundView()
 
-            if store.entries.isEmpty {
-                VelvetEmptyState(
-                    title: "Capture a feeling to see its pulse",
-                    systemImage: "waveform.path.ecg"
-                )
-            } else {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        summaryStrip
-                        moodChartPanel
-                        activityChartPanel
-                        heatPanel
+                if store.notes.isEmpty {
+                    UsefulEmptyState(
+                        title: "No patterns yet",
+                        subtitle: "After a few days of intentions and wins, Review shows your streak, mix, and pinned notes.",
+                        systemImage: "chart.bar.fill",
+                        primaryTitle: "Start today’s ritual",
+                        primaryAction: {
+                            NotificationCenter.default.post(name: Notification.Name("goToday"), object: nil)
+                        },
+                        secondaryTitle: "Load sample week",
+                        secondaryAction: { store.installDemoContent() }
+                    )
+                    .padding(.bottom, tabBarClearance)
+                } else {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 18) {
+                            StageHeading(title: "Review")
+
+                            statsRow
+                            kindChart
+                            activityChart
+                            pinnedSection
+                            tipCard
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 16)
+                        .padding(.bottom, tabBarClearance)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 28)
+                    .clearScrollBackground()
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .transparentNavigationChrome()
+        .sheet(item: $composer) { mode in
+            NoteComposerSheet(mode: mode)
+                .environmentObject(store)
         }
     }
 
-    private var summaryStrip: some View {
+    private var statsRow: some View {
         HStack(spacing: 10) {
-            pulseStat(value: "\(store.entries.count)", label: "Polaroids")
-            pulseStat(value: "\(store.captions.count)", label: "Captions")
-            pulseStat(value: "\(store.captureStreak())", label: "Day streak")
+            statCard(value: "\(store.captureStreak())", label: "Day streak")
+            statCard(value: "\(store.notes.count)", label: "Notes")
+            statCard(value: "\(store.pinnedNotes().count)", label: "Pinned")
         }
     }
 
-    private func pulseStat(value: String, label: String) -> some View {
-        VStack(spacing: 4) {
+    private func statCard(value: String, label: String) -> some View {
+        VStack(spacing: 6) {
             Text(value)
-                .font(.system(size: 22, weight: .semibold, design: .serif))
+                .font(.system(size: 24, weight: .bold, design: .rounded))
                 .foregroundColor(Palette.primary)
             Text(label)
-                .font(.system(size: 11, design: .serif))
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
                 .foregroundColor(Palette.accent)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 14)
+        .padding(.vertical, 16)
         .background(Palette.surface)
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Palette.primary.opacity(0.35), lineWidth: 1)
-        )
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
-    private var moodChartPanel: some View {
-        VelvetFieldPanel(title: "Mood mix") {
-            Chart(moodRows) { row in
+    private var kindChart: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("NOTE MIX")
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .foregroundColor(Palette.accent)
+
+            Chart(kindRows) { row in
                 BarMark(
-                    x: .value("Mood", row.mood.rawValue),
-                    y: .value("Polaroids", row.count)
+                    x: .value("Kind", row.kind.rawValue),
+                    y: .value("Count", row.count)
                 )
                 .foregroundStyle(Palette.primary)
-                .cornerRadius(5)
+                .annotation(position: .top, spacing: 4) {
+                    if row.count > 0 {
+                        Text("\(row.count)")
+                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .foregroundColor(Palette.primary.opacity(0.7))
+                    }
+                }
             }
             .chartXAxis {
                 AxisMarks { value in
                     AxisValueLabel {
-                        if let name = value.as(String.self), let mood = Mood.matchingExact(name) {
-                            Text(mood.emoji)
-                                .font(.system(size: 13))
+                        if let name = value.as(String.self), let kind = NoteKind(rawValue: name) {
+                            Image(systemName: kind.symbol)
+                                .foregroundColor(Palette.primary)
                         }
                     }
-                    .foregroundStyle(Palette.accent)
                 }
             }
-            .chartYAxis {
-                AxisMarks(position: .leading) { _ in
-                    AxisGridLine()
-                        .foregroundStyle(Palette.primary.opacity(0.18))
-                    AxisValueLabel()
-                        .foregroundStyle(Palette.accent)
-                }
-            }
-            .frame(height: 168)
+            .frame(height: 160)
         }
+        .padding(16)
+        .background(Palette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
-    private var activityChartPanel: some View {
-        VelvetFieldPanel(title: "Last 14 days") {
+    private var activityChart: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("LAST 14 DAYS")
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .foregroundColor(Palette.accent)
+
             Chart(dayRows) { row in
-                AreaMark(
-                    x: .value("Day", row.date),
-                    y: .value("Polaroids", row.count)
+                BarMark(
+                    x: .value("Day", row.date, unit: .day),
+                    y: .value("Notes", row.count)
                 )
-                .foregroundStyle(Palette.primary.opacity(0.22))
-                LineMark(
-                    x: .value("Day", row.date),
-                    y: .value("Polaroids", row.count)
-                )
-                .foregroundStyle(Palette.primary)
-                .lineStyle(StrokeStyle(lineWidth: 2))
-                PointMark(
-                    x: .value("Day", row.date),
-                    y: .value("Polaroids", row.count)
-                )
-                .foregroundStyle(Palette.primary)
+                .foregroundStyle(Palette.accent.opacity(0.85))
             }
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: 3)) { _ in
                     AxisGridLine()
-                        .foregroundStyle(Palette.primary.opacity(0.12))
-                    AxisValueLabel(format: .dateTime.month(.abbreviated).day())
-                        .foregroundStyle(Palette.accent)
+                    AxisValueLabel(format: .dateTime.day())
                 }
             }
-            .chartYAxis {
-                AxisMarks(position: .leading) { _ in
-                    AxisGridLine()
-                        .foregroundStyle(Palette.primary.opacity(0.18))
-                    AxisValueLabel()
-                        .foregroundStyle(Palette.accent)
+            .frame(height: 140)
+        }
+        .padding(16)
+        .background(Palette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+
+    @ViewBuilder
+    private var pinnedSection: some View {
+        Text("PINNED")
+            .font(.system(size: 11, weight: .bold, design: .rounded))
+            .foregroundColor(Palette.accent)
+
+        let pinned = store.pinnedNotes()
+        if pinned.isEmpty {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Pin notes that should stay visible")
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .foregroundColor(Palette.primary)
+                Text("Open any note in Ledger and choose Pin — useful for lasting intentions or hard-won wins.")
+                    .font(.system(size: 13, design: .rounded))
+                    .foregroundColor(Palette.primary.opacity(0.7))
+                Button {
+                    composer = .create(.intention)
+                } label: {
+                    Text("Write a lasting intention")
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundColor(Palette.background)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .background(Capsule().fill(Palette.primary))
                 }
+                .buttonStyle(.plain)
             }
-            .frame(height: 168)
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Palette.surface)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        } else {
+            ForEach(pinned.prefix(5)) { note in
+                Button {
+                    composer = .edit(note)
+                } label: {
+                    NoteCard(note: note)
+                }
+                .buttonStyle(.plain)
+            }
         }
     }
 
-    private var heatPanel: some View {
-        VelvetFieldPanel(title: "Four weeks of light") {
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 5), count: 7), spacing: 5) {
-                ForEach(Array(weekdayHeads.enumerated()), id: \.offset) { _, day in
-                    Text(day)
-                        .font(.system(size: 10, weight: .semibold, design: .serif))
-                        .foregroundColor(Palette.accent)
-                        .frame(maxWidth: .infinity)
-                }
-                ForEach(heatCells) { cell in
-                    RoundedRectangle(cornerRadius: 5)
-                        .fill(cell.date == nil ? Color.clear : heatFill(for: cell.count))
-                        .frame(height: 26)
-                        .overlay {
-                            if let date = cell.date {
-                                Text("\(Calendar.current.component(.day, from: date))")
-                                    .font(.system(size: 9, design: .serif))
-                                    .foregroundColor(cell.count == 0 ? Palette.accent : Palette.background)
-                            }
-                        }
-                        .accessibilityLabel(cell.date == nil ? "Empty" : "\(cell.count) polaroids")
-                }
-            }
+    private var tipCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("RITUAL TIP")
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .foregroundColor(Palette.accent)
+            Text("Morning: one intention. Evening: at least one win. Friction and gratitude fill the gaps so the week has shape.")
+                .font(.system(size: 14, design: .rounded))
+                .foregroundColor(Palette.primary)
         }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Palette.surface.opacity(0.9))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
-    private var moodRows: [MoodPulseRow] {
-        Mood.allCases.map { mood in
-            MoodPulseRow(mood: mood, count: store.polaroidCount(for: mood))
+    private var kindRows: [KindPulseRow] {
+        NoteKind.allCases.map { kind in
+            KindPulseRow(kind: kind, count: store.count(for: kind))
         }
     }
 
     private var dayRows: [DayPulseRow] {
-        store.polaroidsByDay(last: 14).map { DayPulseRow(date: $0.date, count: $0.count) }
-    }
-
-    private var weekdayHeads: [String] {
-        let calendar = Calendar.current
-        let symbols = calendar.veryShortWeekdaySymbols
-        let first = calendar.firstWeekday - 1
-        if first == 0 {
-            return symbols
-        }
-        return Array(symbols[first...]) + Array(symbols[..<first])
-    }
-
-    private var heatCells: [HeatCell] {
-        let calendar = Calendar.current
-        let days = store.polaroidsByDay(last: 28)
-        guard let firstDate = days.first?.date else { return [] }
-        var leading = calendar.component(.weekday, from: firstDate) - calendar.firstWeekday
-        if leading < 0 {
-            leading += 7
-        }
-        var cells: [HeatCell] = []
-        if leading > 0 {
-            for index in 0..<leading {
-                cells.append(HeatCell(id: -(index + 1), date: nil, count: 0))
-            }
-        }
-        for (index, day) in days.enumerated() {
-            cells.append(HeatCell(id: index, date: day.date, count: day.count))
-        }
-        return cells
-    }
-
-    private func heatFill(for count: Int) -> Color {
-        if count <= 0 {
-            return Palette.surface
-        }
-        let intensity = min(0.35 + Double(count) * 0.18, 1)
-        return Palette.primary.opacity(intensity)
+        store.notesByDay(last: 14).map { DayPulseRow(date: $0.date, count: $0.count) }
     }
 }
 
-private struct MoodPulseRow: Identifiable {
-    let mood: Mood
+private struct KindPulseRow: Identifiable {
+    let kind: NoteKind
     let count: Int
-    var id: String { mood.rawValue }
+    var id: String { kind.rawValue }
 }
 
 private struct DayPulseRow: Identifiable {
@@ -215,14 +219,4 @@ private struct DayPulseRow: Identifiable {
     var id: Date { date }
 }
 
-private struct HeatCell: Identifiable {
-    let id: Int
-    let date: Date?
-    let count: Int
-}
-
-private extension Mood {
-    static func matchingExact(_ name: String) -> Mood? {
-        Mood(rawValue: name)
-    }
-}
+typealias PulseStage = ReviewStage
